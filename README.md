@@ -5,13 +5,13 @@
 ### Install
 
 ```
-$ yarn add @reuters-graphics/chart-module-stackedareachart
+$ yarn add @reuters-graphics/chart-module-stacked-area-chart
 ```
 
 ### Use
 
 ```javascript
-import StackedAreaChart from '@reuters-graphics/chart-module-stackedareachart';
+import StackedAreaChart from '@reuters-graphics/chart-module-stacked-area-chart';
 
 const myChart = new StackedAreaChart();
 
