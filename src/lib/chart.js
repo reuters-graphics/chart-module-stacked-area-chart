@@ -8,8 +8,8 @@ const client = new AtlasMetadataClient();
 
 class StackedAreaChart extends ChartComponent {
   defaultProps = {
-    stroke: '#aaa',
-    strokeWidth: 1,
+    stroke: '#2f353f',
+    stroke_width: .5,
     fills: ['rgba(255,255,255,0.9)',
       'rgba(255,255,255,0.8)',
       'rgba(255,255,255,0.7)',
@@ -138,8 +138,8 @@ class StackedAreaChart extends ChartComponent {
       .attr('class', d => d.key)
       .transition(transition)
       .attr('d', areaDeath)
-      .attr('stroke', '#212121')
-      .attr('stroke-width', '.5');
+      .attr('stroke', props.stroke)
+      .attr('stroke-width', props.stroke_width);
 
     g.appendSelect('g.axis--y')
       .attr('class', 'axis--y axis')
