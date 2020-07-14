@@ -48,7 +48,8 @@ myChart
     // How many days rolling average 
     avg_days: 7,
 
-    // The locale
+    // The locale is used to format numbers, dates 
+    // and region names
     locale: 'en',
 
     // False by default. Changing to true will show 
