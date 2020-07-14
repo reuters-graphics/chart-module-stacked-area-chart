@@ -24,12 +24,11 @@ class ChartComponent extends React.Component {
       .draw();
 
     // Use it again.
-    // setTimeout(() => {
-    //   this.chart
-    //     .data([20, 34, 48, 60])
-    //     .props({ fill: base.orange.hex })
-    //     .draw();
-    // }, 1000);
+    setTimeout(() => {
+      this.chart
+        // .props({ absolute: true })
+        .draw();
+    }, 3000);
     // setTimeout(() => {
     //   this.chart
     //     .data([30, 50, 30])
