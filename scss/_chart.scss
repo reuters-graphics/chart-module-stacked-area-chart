@@ -1,5 +1,41 @@
-#{$StackedAreaChart-container} {
+$dark-blue: #2f353f;
+$yellow: #fce587;
+$dark-yellow: #eec331;
+$half-white: rgba(255, 255, 255, 0.75);
+$boxshadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+body{
+  background: $dark-blue;
+}
 
+#{$StackedAreaChart-container} {
+  
+  .label-container{
+    .label{
+      display: inline-block;
+      margin-right:1rem;
+    }
+    .label-box{
+      height: 10px;
+      width: 15px;
+      display: inline-block;
+      margin-right: 3px;
+    }
+    .label-text{
+      font-size: .9rem;
+      color: $half-white;
+      display: inline-block;
+    }
+  }
+  .axis{
+    text{
+      font-family: $font-family-sans-serif;
+      fill: $half-white;
+    }
+    line{
+      stroke: $half-white;
+    }
+  }
+  
   /* Write your chart styles here */
   .domain{
   	display: none;

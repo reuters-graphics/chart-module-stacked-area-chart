@@ -1,121 +1,168 @@
 import ChartComponent from './base/ChartComponent';
 import d3 from './utils/d3';
-import defaultData from './defaultData.json';
-import {uniq} from 'lodash'
-import { compareValues }  from "./utils/utils"
-import { pistachio } from '@reuters-graphics/style-color/dist/sequential';
+import { uniq } from 'lodash';
+import { compareValues } from './utils/utils';
+import D3Locale from '@reuters-graphics/d3-locale';
+import AtlasMetadataClient from '@reuters-graphics/graphics-atlas-client';
+const client = new AtlasMetadataClient();
 
 class StackedAreaChart extends ChartComponent {
 
   defaultProps = {
     stroke: '#aaa',
     strokeWidth: 1,
-    fills: pistachio,
+    fills: ['rgba(255,255,255,0.9)',
+      'rgba(255,255,255,0.8)',
+      'rgba(255,255,255,0.7)',
+      'rgba(255,255,255,0.55)',
+      'rgba(255,255,255,0.45)',
+      'rgba(255,255,255,0.25)'],
+    margin: { left: 10, right: 35, top: 20, bottom: 20 },
     height: 300,
-    avg_days: 7
+    avg_days: 7,
+    locale: 'en',
   };
-  
-  defaultData = defaultData;
 
   draw() {
-    let dateParse = d3.timeParse("%Y-%m-%d");
-    const margin = {left: 10, right: 35, top: 20, bottom: 20}
+    const dateParse = d3.timeParse('%Y-%m-%d');
     const data = this.data();
     const props = this.props();
     const node = this.selection().node();
+    const locale = new D3Locale(props.locale);
+    const dateFormat = locale.formatTime('%B');
+    const dateFormatMobile = locale.formatTime('%b');
+    const formatPer = locale.format('.0%');
+
     const { width } = node.getBoundingClientRect();
-    let reshapedData = []
-    let regionList = uniq(data.map(d=>d.region))
-    let dateWise = d3.nest()
-                      .key(d=>d.date)
-                      .entries(data)
-    console.log(props.fills)
+    let reshapedData = [];
+    const regionList = uniq(data.map(d => d.region));
+    const dateWise = d3.nest()
+      .key(d => d.date)
+      .entries(data);
 
-    dateWise.forEach(function(d,index){
-        let obj = {
-          date: dateParse(d.key),
-          total: d3.sum(d.values,e=>e.count)
-        }
-        regionList.forEach(e=>obj[e]=0)
-        d.values.forEach(function(e){
-          obj[e.region] = e.count
-        })
-        reshapedData.push(obj)
-    })
-
-    reshapedData = reshapedData.sort(compareValues('date'))
-
-    reshapedData.forEach(function(d,index){
-      regionList.forEach((e)=>{
-        d['mean_'+e] = d3.mean(reshapedData.slice((index-props.avg_days),index),f=>+f[e]) // avg calc 
-        if (!d['mean_'+e]){
-          d['mean_'+e]=d3.mean(reshapedData.slice(0,index),f=>+f[e])
-        }
-        if(index==0){
-          d['mean_'+e]=d[e]
-        }
+    dateWise.forEach(function(d, index) {
+      const obj = {
+        date: dateParse(d.key),
+        total: d3.sum(d.values, e => e.count)
+      }
+      regionList.forEach(e => obj[e] = 0);
+      d.values.forEach(function(e) {
+        obj[e.region] = e.count
       })
-
-      d['mean_total'] = d3.mean(reshapedData.slice((index-props.avg_days),index),f=>+f['total']) // avg calc 
-      if (!d['mean_total']){
-          d['mean_total']=d3.mean(reshapedData.slice(0,index),f=>+f['total'])
-      }
-
-      if (index==0){
-          d['mean_total']=d['total']
-      }
+      reshapedData.push(obj)
     })
 
+    reshapedData = reshapedData.sort(compareValues('date'));
 
-    let seriesDeath = d3.stack().keys(regionList.map(d=>'mean_'+d))(reshapedData)
-    let scaleX = d3.scaleTime()
-                    .range([0, width-margin.left- margin.right])
-                    .domain(d3.extent(reshapedData,d=>d.date))
+    reshapedData.forEach(function(d, index) {
+      regionList.forEach((e) => {
+        d['mean_' + e] = d3.mean(reshapedData.slice((index - props.avg_days), index), f=> + f[e]) // avg calc 
+        if (!d['mean_' + e]) {
+          d['mean_' + e] = d3.mean(reshapedData.slice(0, index), f => +f[e]);
+        }
+        if (index === 0) {
+          d['mean_' + e] = d[e];
+        }
+      });
+      d.mean_total = d3.mean(reshapedData.slice((index - props.avg_days), index), f=> +f.total); // avg calc 
+      if (!d.mean_total) {
+        d.mean_total = d3.mean(reshapedData.slice(0, index), f=> +f.total)
+      }
 
-    let scaleY = d3.scaleLinear()
-                    .range([props.height-margin.top-margin.bottom, 0])
-                    .domain([0, 100])
+      if (index === 0) {
+        d.mean_total = d.total;
+      }
+    });
 
-    let areaDeath = d3.area()
-                      .x(d=>scaleX(d.data.date) )
-                      .y0(d=>scaleY((d[0]/d.data.mean_total)*100))
-                      .y1(d=>scaleY((d[1]/d.data.mean_total)*100))
-                      .curve(d3.curveMonotoneX)
+    const seriesDeath = d3.stack().keys(regionList.map(d => 'mean_' + d))(reshapedData);
+    const scaleX = d3.scaleTime()
+      .range([0, width - props.margin.left - props.margin.right])
+      .domain(d3.extent(reshapedData, d => d.date));
+
+    const scaleY = d3.scaleLinear()
+      .range([props.height - props.margin.top - props.margin.bottom, 0])
+      .domain([0, 1]);
+
+    const areaDeath = d3.area()
+      .x(d => scaleX(d.data.date))
+      .y0(d => scaleY((d[0] / d.data.mean_total)))
+      .y1(d => scaleY((d[1] / d.data.mean_total)))
+      .curve(d3.curveMonotoneX);
 
     const transition = d3.transition()
-                          .duration(750);
+      .duration(750);
+
+    const labels = this.selection()
+      .appendSelect('div.label-container')
+      .selectAll('div.label')
+      .data(seriesDeath, (d, i) => d.key);
+
+    const label_inner = labels.enter()
+      .append('div')
+      .attr('class', 'label')
+      .merge(labels);
+
+    label_inner.appendSelect('div.label-box')
+      .style('background', (d, i) => props.fills[i]);
+
+    label_inner.appendSelect('div.label-text')
+      .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale])
+
+    labels.exit()
+      .remove();
 
     const g = this.selection()
-                  .appendSelect('svg') // see docs in ./utils/d3.js
-                  .attr('width', width)
-                  .attr('height', props.height)
-                  .appendSelect('g')
-                  .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      .appendSelect('svg') // see docs in ./utils/d3.js
+      .attr('width', width)
+      .attr('height', props.height)
+      .appendSelect('g')
+      .attr('transform', `translate(${props.margin.left}, ${props.margin.top})`);
 
-    let deathChartPaths =   g.appendSelect("g.areas")
-            .selectAll("path")
-            .data(seriesDeath)
-            .join("path")
-            .attr("class", d => d.key)
-            .attr("d", areaDeath)
-            .attr('fill',function(d,i){
-                return ((props.fills.all[i])?props.fills.all[i].hex:'#000')
-            })
-            // .attr('opacity',(d,i)=>variables[i])
-            .attr('stroke','#212121')
-            .attr('stroke-width','.5')
+    const deathChartPaths = g.appendSelect('g.areas')
+      .selectAll('g.area')
+      .data(seriesDeath)
+      .join('g')
+      .attr('class', 'area');
+
+    deathChartPaths.append('path')
+      .attr('fill', function(d, i) {
+        return ((props.fills[i]) ? props.fills[i] : '#000');
+      });
+
+    deathChartPaths.select('path')
+      .attr('class', d => d.key)
+      .attr('d', areaDeath)
+      .attr('stroke', '#212121')
+      .attr('stroke-width', '.5');
 
     g.appendSelect('g.axis--y')
-      .attr('class','axis--y axis')
+      .attr('class', 'axis--y axis')
       .transition(transition)
-      .attr('transform',`translate(${width-margin.right-margin.left},0)`)
-      .call(d3.axisRight(scaleY).ticks(props.bars?3:1))
+      .attr('transform', `translate(${width - props.margin.right - props.margin.left},0)`)
+      .call(d3.axisRight(scaleY).ticks(3).tickFormat(formatPer));
 
     g.appendSelect('g.axis--x')
-      .attr('class','axis--x axis')
+      .attr('class', 'axis--x axis')
       .transition(transition)
-      .attr('transform',`translate(0,${props.height-margin.bottom-margin.top})`)
-      .call(d3.axisBottom(scaleX))
+      .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
+      .call(d3.axisBottom(scaleX).ticks(4).tickFormat(width<500?dateFormatMobile:dateFormat));
+
+// function getCentroid(el) { 
+//     var path = el.attr("d");
+//     var cnt = 0;
+//     var ans={x:0,y:0};
+//     for(var i=0;i<path.length;i++){
+//         if(path[i][0]=='M' || path[i][0]=='L'){
+//             ans.x+=path[i][1];
+//             ans.y+=path[i][2];
+//             cnt++;
+//         }
+//     }
+//     ans.x/=cnt;
+//     ans.y/=cnt;
+//     console.log(ans)
+//     return ans;
+// }
 
     return this;
   }

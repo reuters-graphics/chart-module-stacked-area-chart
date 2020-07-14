@@ -3,6 +3,7 @@ import ChartContainer from './furniture/ChartContainer';
 import React from 'react';
 import { base } from '@reuters-graphics/style-color/dist/categorical';
 import debounce from 'lodash/debounce';
+import defaultData from './defaultData.json';
 
 class ChartComponent extends React.Component {
   state = { width: '' };
@@ -18,7 +19,8 @@ class ChartComponent extends React.Component {
     // Use our chart module.
     this.chart
       .selection(this.chartContainer.current)
-      .props({ fill: base.blue.hex })
+      .data(defaultData)
+      // .props({ locale: 'es'})
       .draw();
 
     // Use it again.
