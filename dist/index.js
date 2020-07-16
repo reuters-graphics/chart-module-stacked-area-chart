@@ -583,7 +583,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         return props.absolute ? scaleYNum(d[1]) : scaleYPer(d[1] / d.data.mean_total);
       }).curve(d3.curveMonotoneX);
       var transition = d3.transition().duration(750);
-      var labels = this.selection().appendSelect('div.label-container').selectAll('div.label').data(seriesDeath, function (d, i) {
+      var labels = this.selection().appendSelect('div.label-container').selectAll('div.label').data(seriesDeath.reverse(), function (d, i) {
         return d.key;
       });
       var labelInner = labels.enter().append('div').attr('class', 'label').merge(labels);
@@ -603,8 +603,8 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       deathChartPaths.select('path').attr('class', function (d) {
         return d.key;
       }).transition(transition).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
-      g.appendSelect('g.axis--y').attr('class', 'axis--y axis').transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
-      g.appendSelect('g.axis--x').attr('class', 'axis--x axis').transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(width < 500 ? dateFormatMobile : dateFormat));
+      g.appendSelect('g.axis--y.axis').transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
+      g.appendSelect('g.axis--x.axis').transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(width < 500 ? dateFormatMobile : dateFormat));
       return this;
     }
   }]);

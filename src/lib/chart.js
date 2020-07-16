@@ -100,7 +100,7 @@ class StackedAreaChart extends ChartComponent {
     const labels = this.selection()
       .appendSelect('div.label-container')
       .selectAll('div.label')
-      .data(seriesDeath, (d, i) => d.key);
+      .data(seriesDeath.reverse(), (d, i) => d.key);
 
     const labelInner = labels.enter()
       .append('div')
@@ -141,14 +141,12 @@ class StackedAreaChart extends ChartComponent {
       .attr('stroke', props.stroke)
       .attr('stroke-width', props.stroke_width);
 
-    g.appendSelect('g.axis--y')
-      .attr('class', 'axis--y axis')
+    g.appendSelect('g.axis--y.axis')
       .transition(transition)
       .attr('transform', `translate(${width - props.margin.right - props.margin.left},0)`)
       .call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
 
-    g.appendSelect('g.axis--x')
-      .attr('class', 'axis--x axis')
+    g.appendSelect('g.axis--x.axis')
       .transition(transition)
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
       .call(d3.axisBottom(scaleX).ticks(4).tickFormat(width < 500 ? dateFormatMobile : dateFormat));
