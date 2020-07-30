@@ -482,7 +482,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
 
     _defineProperty(_assertThisInitialized(_this), "defaultProps", {
       stroke: '#2f353f',
-      stroke_width: .5,
+      stroke_width: 0.5,
       fills: ['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0.25)'],
       margin: {
         left: 10,
@@ -503,6 +503,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
     key: "draw",
     value: function draw() {
       var dateParse = d3.timeParse('%Y-%m-%d');
+      var dateFormatBack = d3.timeFormat('%Y-%m-%d');
       var data = this.data();
       var props = this.props();
       var node = this.selection().node();
@@ -568,9 +569,14 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
           d.mean_total = d.total;
         }
       });
-      var seriesDeath = d3.stack().keys(regionList.map(function (d) {
+      var maxData = reshapedData[reshapedData.length - 1];
+      var meanList = regionList.map(function (d) {
         return 'mean_' + d;
-      }))(reshapedData);
+      });
+      regionList = lodash.sortBy(meanList, function (d) {
+        return +maxData[d];
+      });
+      var seriesDeath = d3.stack().keys(regionList)(reshapedData);
       var scaleX = d3.scaleTime().range([0, width - props.margin.left - props.margin.right]).domain(d3.extent(reshapedData, function (d) {
         return d.date;
       }));

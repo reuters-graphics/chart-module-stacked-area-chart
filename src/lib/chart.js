@@ -1,6 +1,6 @@
 import ChartComponent from './base/ChartComponent';
 import d3 from './utils/d3';
-import { uniq } from 'lodash';
+import { uniq, sortBy } from 'lodash';
 import { compareValues } from './utils/utils';
 import D3Locale from '@reuters-graphics/d3-locale';
 import AtlasMetadataClient from '@reuters-graphics/graphics-atlas-client';
@@ -9,7 +9,7 @@ const client = new AtlasMetadataClient();
 class StackedAreaChart extends ChartComponent {
   defaultProps = {
     stroke: '#2f353f',
-    stroke_width: .5,
+    stroke_width: 0.5,
     fills: ['rgba(255,255,255,0.9)',
       'rgba(255,255,255,0.8)',
       'rgba(255,255,255,0.7)',
@@ -25,6 +25,8 @@ class StackedAreaChart extends ChartComponent {
 
   draw() {
     const dateParse = d3.timeParse('%Y-%m-%d');
+    const dateFormatBack = d3.timeFormat('%Y-%m-%d');
+
     const data = this.data();
     const props = this.props();
     const node = this.selection().node();
@@ -36,7 +38,7 @@ class StackedAreaChart extends ChartComponent {
 
     const { width } = node.getBoundingClientRect();
     let reshapedData = [];
-    const regionList = uniq(data.map(d => d.region));
+    let regionList = uniq(data.map(d => d.region));
     const dateWise = d3.nest()
       .key(d => d.date)
       .entries(data);
@@ -74,8 +76,11 @@ class StackedAreaChart extends ChartComponent {
         d.mean_total = d.total;
       }
     });
+    const maxData = reshapedData[reshapedData.length-1]
+    const meanList = regionList.map(d => 'mean_' + d)
+    regionList = sortBy(meanList, d => +maxData[d])
 
-    const seriesDeath = d3.stack().keys(regionList.map(d => 'mean_' + d))(reshapedData);
+    const seriesDeath = d3.stack().keys(regionList)(reshapedData);
     const scaleX = d3.scaleTime()
       .range([0, width - props.margin.left - props.margin.right])
       .domain(d3.extent(reshapedData, d => d.date));
