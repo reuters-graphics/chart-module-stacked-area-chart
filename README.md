@@ -55,6 +55,19 @@ myChart
     // False by default. Changing to true will show 
     // the split with absolute numbers
     absolute: false,
+
+    // Slug of the region you want to highlight
+    highlight_variable: 'asia',
+
+    // Colour you want to highlight it with
+    highlight_color: '#fce587',
+
+    // Number formatting functions
+    chart_formats: {
+      number: ',',
+      percent: '.0%',
+      date: '%b',
+    },
   })
   .draw();
 

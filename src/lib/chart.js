@@ -21,21 +21,25 @@ class StackedAreaChart extends ChartComponent {
     avg_days: 7,
     locale: 'en',
     absolute: false,
+    highlight_variable: 'asia',
+    highlight_color: '#fce587',
+    chart_formats: {
+      number: ',',
+      percent: '.0%',
+      date: '%b',
+    },
   };
 
   draw() {
     const dateParse = d3.timeParse('%Y-%m-%d');
-    const dateFormatBack = d3.timeFormat('%Y-%m-%d');
 
     const data = this.data();
     const props = this.props();
     const node = this.selection().node();
     const locale = new D3Locale(props.locale);
-    const dateFormat = locale.formatTime('%B');
-    const dateFormatMobile = locale.formatTime('%b');
-    const formatPer = locale.format('.0%');
-    const formatNum = locale.format(',');
-
+    const formatPer = locale.format(props.chart_formats.percent);
+    const formatNum = locale.format(props.chart_formats.number);
+    const dateFormat = locale.formatTime(props.chart_formats.date);
     const { width } = node.getBoundingClientRect();
     let reshapedData = [];
     let regionList = uniq(data.map(d => d.region));
@@ -76,9 +80,9 @@ class StackedAreaChart extends ChartComponent {
         d.mean_total = d.total;
       }
     });
-    const maxData = reshapedData[reshapedData.length-1]
-    const meanList = regionList.map(d => 'mean_' + d)
-    regionList = sortBy(meanList, d => +maxData[d])
+    const maxData = reshapedData[reshapedData.length - 1];
+    const meanList = regionList.map(d => 'mean_' + d);
+    regionList = sortBy(meanList, d => +maxData[d]);
 
     const seriesDeath = d3.stack().keys(regionList)(reshapedData);
     const scaleX = d3.scaleTime()
@@ -109,11 +113,23 @@ class StackedAreaChart extends ChartComponent {
 
     const labelInner = labels.enter()
       .append('div')
-      .attr('class', 'label')
+      .attr('class', function(d) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return 'label highlight';
+        } else {
+          return 'label';
+        }
+      })
       .merge(labels);
 
     labelInner.appendSelect('div.label-box')
-      .style('background', (d, i) => props.fills[i]);
+      .style('background', (d, i) => {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return ((props.fills[i]) ? props.fills[i] : '#000');
+        }
+      });
 
     labelInner.appendSelect('div.label-text')
       .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale]);
@@ -134,14 +150,24 @@ class StackedAreaChart extends ChartComponent {
       .join('g')
       .attr('class', 'area');
 
-    deathChartPaths.append('path')
-      .attr('fill', function(d, i) {
-        return ((props.fills[i]) ? props.fills[i] : '#000');
-      });
+    deathChartPaths.append('path');
 
     deathChartPaths.select('path')
-      .attr('class', d => d.key)
+      .attr('class', function(d) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return d.key + ' highlight';
+        } else {
+          return d.key;
+        }
+      })
       .transition(transition)
+      .attr('fill', function(d, i) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return ((props.fills[i]) ? props.fills[i] : '#000');
+        }
+      })
       .attr('d', areaDeath)
       .attr('stroke', props.stroke)
       .attr('stroke-width', props.stroke_width);
@@ -154,7 +180,7 @@ class StackedAreaChart extends ChartComponent {
     g.appendSelect('g.axis--x.axis')
       .transition(transition)
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
-      .call(d3.axisBottom(scaleX).ticks(4).tickFormat(width < 500 ? dateFormatMobile : dateFormat));
+      .call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
 
     return this;
   }
