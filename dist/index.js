@@ -493,7 +493,14 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       height: 300,
       avg_days: 7,
       locale: 'en',
-      absolute: false
+      absolute: false,
+      highlight_variable: 'asia',
+      highlight_color: '#fce587',
+      chart_formats: {
+        number: ',',
+        percent: '.0%',
+        date: '%b'
+      }
     });
 
     return _this;
@@ -503,15 +510,13 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
     key: "draw",
     value: function draw() {
       var dateParse = d3.timeParse('%Y-%m-%d');
-      var dateFormatBack = d3.timeFormat('%Y-%m-%d');
       var data = this.data();
       var props = this.props();
       var node = this.selection().node();
       var locale = new D3Locale(props.locale);
-      var dateFormat = locale.formatTime('%B');
-      var dateFormatMobile = locale.formatTime('%b');
-      var formatPer = locale.format('.0%');
-      var formatNum = locale.format(',');
+      var formatPer = locale.format(props.chart_formats.percent);
+      var formatNum = locale.format(props.chart_formats.number);
+      var dateFormat = locale.formatTime(props.chart_formats.date);
 
       var _node$getBoundingClie = node.getBoundingClientRect(),
           width = _node$getBoundingClie.width;
@@ -595,9 +600,19 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       var labels = this.selection().appendSelect('div.label-container').selectAll('div.label').data(seriesDeath.reverse(), function (d, i) {
         return d.key;
       });
-      var labelInner = labels.enter().append('div').attr('class', 'label').merge(labels);
+      var labelInner = labels.enter().append('div').attr('class', function (d) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return 'label highlight';
+        } else {
+          return 'label';
+        }
+      }).merge(labels);
       labelInner.appendSelect('div.label-box').style('background', function (d, i) {
-        return props.fills[i];
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return props.fills[i] ? props.fills[i] : '#000';
+        }
       });
       labelInner.appendSelect('div.label-text').text(function (d) {
         return client.getRegion(d.key.split('_')[1]).translations[props.locale];
@@ -606,14 +621,22 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       var g = this.selection().appendSelect('svg') // see docs in ./utils/d3.js
       .attr('width', width).attr('height', props.height).appendSelect('g').attr('transform', "translate(".concat(props.margin.left, ", ").concat(props.margin.top, ")"));
       var deathChartPaths = g.appendSelect('g.areas').selectAll('g.area').data(seriesDeath).join('g').attr('class', 'area');
-      deathChartPaths.append('path').attr('fill', function (d, i) {
-        return props.fills[i] ? props.fills[i] : '#000';
-      });
+      deathChartPaths.append('path');
       deathChartPaths.select('path').attr('class', function (d) {
-        return d.key;
-      }).transition(transition).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return d.key + ' highlight';
+        } else {
+          return d.key;
+        }
+      }).transition(transition).attr('fill', function (d, i) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return props.fills[i] ? props.fills[i] : '#000';
+        }
+      }).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
       g.appendSelect('g.axis--y.axis').transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
-      g.appendSelect('g.axis--x.axis').transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(width < 500 ? dateFormatMobile : dateFormat));
+      g.appendSelect('g.axis--x.axis').transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
       return this;
     }
   }]);

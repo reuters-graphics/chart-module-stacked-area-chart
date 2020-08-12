@@ -64,8 +64,13 @@ myChart
 
     // Number formatting functions
     chart_formats: {
+      // Format if number
       number: ',',
+
+      // Format if percent
       percent: '.0%',
+
+      // Date format for the x axis
       date: '%b',
     },
   })
