@@ -28,12 +28,16 @@ class StackedAreaChart extends ChartComponent {
       number: ',',
       percent: '.0%',
       date: '%b',
+      x_axis_ticks: 3,
+    },
+    range: {
+      start_date: null,
+      end_date: null,
     },
   };
 
   draw() {
     const dateParse = d3.timeParse('%Y-%m-%d');
-    const dateFormatMatch = d3.timeFormat('%Y-%m-%d')
     const data = this.data();
     const props = this.props();
     const node = this.selection().node();
@@ -44,9 +48,22 @@ class StackedAreaChart extends ChartComponent {
     const { width } = node.getBoundingClientRect();
     let reshapedData = [];
     let regionList = uniq(data.map(d => d.region));
+    let filtedData = data;
+    if (props.range.start_date) {
+      const startDate = dateParse(props.range.start_date)
+      filtedData = filtedData.filter(d => dateParse(d.date)>=startDate)
+    }
+
+    if (props.range.end_date) {
+      const endDate = dateParse(props.range.end_date)
+      filtedData = filtedData.filter(d => dateParse(d.date)<=endDate)
+    }
+
     const dateWise = d3.nest()
       .key(d => d.date)
-      .entries(data);
+      .entries(filtedData);
+
+
 
     dateWise.forEach(function(d, index) {
       d.values.forEach((d) => {
@@ -89,12 +106,8 @@ class StackedAreaChart extends ChartComponent {
       }
     });
 
-    // reshapedData = reshapedData.filter(d => d.total > 0 && d.mean_total > 0);
-
-    console.log(reshapedData)
-    // reshapedData = reshapedData.shift();
-
-    const maxData = reshapedData[1];
+    const maxData = reshapedData[0];
+    console.log(maxData)
     const meanList = regionList.map(d => 'mean_' + d);
     regionList = sortBy(meanList, d => +maxData[d]);
 
@@ -244,7 +257,7 @@ class StackedAreaChart extends ChartComponent {
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
       .transition(transition)
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
-      .call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
+      .call(d3.axisBottom(scaleX).ticks(props.chart_formats.x_axis_ticks).tickFormat(dateFormat));
 
     return this;
   }

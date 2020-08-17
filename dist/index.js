@@ -478,7 +478,12 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       chart_formats: {
         number: ',',
         percent: '.0%',
-        date: '%b'
+        date: '%b',
+        x_axis_ticks: 3
+      },
+      range: {
+        start_date: null,
+        end_date: null
       }
     });
 
@@ -489,7 +494,6 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
     key: "draw",
     value: function draw() {
       var dateParse = d3.timeParse('%Y-%m-%d');
-      var dateFormatMatch = d3.timeFormat('%Y-%m-%d');
       var data = this.data();
       var props = this.props();
       var node = this.selection().node();
@@ -505,9 +509,25 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       var regionList = lodash.uniq(data.map(function (d) {
         return d.region;
       }));
+      var filtedData = data;
+
+      if (props.range.start_date) {
+        var startDate = dateParse(props.range.start_date);
+        filtedData = filtedData.filter(function (d) {
+          return dateParse(d.date) >= startDate;
+        });
+      }
+
+      if (props.range.end_date) {
+        var endDate = dateParse(props.range.end_date);
+        filtedData = filtedData.filter(function (d) {
+          return dateParse(d.date) <= endDate;
+        });
+      }
+
       var dateWise = d3.nest().key(function (d) {
         return d.date;
-      }).entries(data);
+      }).entries(filtedData);
       dateWise.forEach(function (d, index) {
         d.values.forEach(function (d) {
           d.count = d.count < 0 ? 0 : d.count;
@@ -558,11 +578,9 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         if (index === 0) {
           d.mean_total = d.total;
         }
-      }); // reshapedData = reshapedData.filter(d => d.total > 0 && d.mean_total > 0);
-
-      console.log(reshapedData); // reshapedData = reshapedData.shift();
-
-      var maxData = reshapedData[1];
+      });
+      var maxData = reshapedData[0];
+      console.log(maxData);
       var meanList = regionList.map(function (d) {
         return 'mean_' + d;
       });
@@ -667,7 +685,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         }
       }).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
       g.appendSelect('g.axis--y.axis').attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
-      g.appendSelect('g.axis--x.axis').attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
+      g.appendSelect('g.axis--x.axis').attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(props.chart_formats.x_axis_ticks).tickFormat(dateFormat));
       return this;
     }
   }]);

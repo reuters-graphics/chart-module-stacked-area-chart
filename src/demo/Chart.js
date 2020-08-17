@@ -22,7 +22,10 @@ class ChartComponent extends React.Component {
       .data(deaths)
       .props({
         absolute: true,
-        highlight_variable: 'asia'
+        highlight_variable: 'asia',
+        range: {
+          start_date: '2020-02-01',
+        }
       })
       .draw();
 
