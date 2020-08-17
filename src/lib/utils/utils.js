@@ -43,4 +43,4 @@ function compareValues(key, order = 'asc') {
   };
 }
 
-export { getDates , round, compareValues};
+export { getDates, round, compareValues};

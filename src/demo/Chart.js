@@ -1,7 +1,6 @@
 import Chart from '../lib/chart.js';
 import ChartContainer from './furniture/ChartContainer';
 import React from 'react';
-import { base } from '@reuters-graphics/style-color/dist/categorical';
 import debounce from 'lodash/debounce';
 import cases from './cases.json';
 import deaths from './deaths.json';
@@ -20,20 +19,20 @@ class ChartComponent extends React.Component {
     // Use our chart module.
     this.chart
       .selection(this.chartContainer.current)
-      .data(cases)
+      .data(deaths)
       .props({
         absolute: true,
-        // highlight_variable: 'asia'
+        highlight_variable: 'asia'
       })
       .draw();
 
     // Use it again.
-    setTimeout(() => {
-      this.chart
-        .data(deaths)
-        .props({absolute: true,})
-        .draw();
-    }, 5000);
+    // setTimeout(() => {
+    //   this.chart
+    //     .data(deaths)
+    //     .props({absolute: false,})
+    //     .draw();
+    // }, 5000);
     // setTimeout(() => {
     //   this.chart
     //     .data([30, 50, 30])

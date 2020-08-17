@@ -1,6 +1,7 @@
 import ChartComponent from './base/ChartComponent';
 import d3 from './utils/d3';
 import { uniq, sortBy, findIndex } from 'lodash';
+import { getDates } from './utils/utils.js';
 import D3Locale from '@reuters-graphics/d3-locale';
 import AtlasMetadataClient from '@reuters-graphics/graphics-atlas-client';
 const client = new AtlasMetadataClient();
@@ -32,7 +33,7 @@ class StackedAreaChart extends ChartComponent {
 
   draw() {
     const dateParse = d3.timeParse('%Y-%m-%d');
-
+    const dateFormatMatch = d3.timeFormat('%Y-%m-%d')
     const data = this.data();
     const props = this.props();
     const node = this.selection().node();
@@ -48,11 +49,14 @@ class StackedAreaChart extends ChartComponent {
       .entries(data);
 
     dateWise.forEach(function(d, index) {
+      d.values.forEach((d) => {
+        d.count = d.count < 0 ? 0: d.count;
+      });
       const obj = {
         date: dateParse(d.key),
         total: d3.sum(d.values, e => e.count),
       };
-      regionList.forEach( e => obj[e] = 0 );
+      regionList.forEach(e => obj[e] = 0);
       d.values.forEach(function(e) {
         obj[e.region] = e.count;
       });
@@ -60,10 +64,14 @@ class StackedAreaChart extends ChartComponent {
     });
 
     reshapedData = reshapedData.sort((a, b) => (d3.descending(a.date, b.date)));
-
+    console.log(reshapedData)
     reshapedData.forEach(function(d, index) {
       regionList.forEach((e) => {
-        d['mean_' + e] = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f[e] ); // avg calc
+
+        d['mean_' + e] = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f[e]); // avg calc
+        // if (d3.timeFormat('%Y-%m-%d')(d.date)=='2020-01-17') {
+        //   console.log(d,reshapedData.slice(index, (index + props.avg_days)))
+        // }
         if (!d['mean_' + e] || d['mean_' + e]<0) {
           d['mean_' + e] = 0;
         }
@@ -72,8 +80,8 @@ class StackedAreaChart extends ChartComponent {
         }
       });
       d.mean_total = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f.total); // avg calc
-      if (!d.mean_total) {
-        d.mean_total = d3.mean(reshapedData.slice(0, index), f => +f.total);
+      if (!d['mean_total'] || d['mean_total']<0) {
+        d['mean_total'] = 0;
       }
 
       if (index === 0) {
@@ -81,6 +89,9 @@ class StackedAreaChart extends ChartComponent {
       }
     });
 
+    // reshapedData = reshapedData.filter(d => d.total > 0 && d.mean_total > 0);
+
+    console.log(reshapedData)
     // reshapedData = reshapedData.shift();
 
     const maxData = reshapedData[1];
@@ -102,14 +113,15 @@ class StackedAreaChart extends ChartComponent {
 
     const areaDeath = d3.area()
       .x(d => scaleX(d.data.date))
-      .y0(d => props.absolute ? scaleYNum(d[0]) : scaleYPer(d[0] / d.data.mean_total))
-      .y1(d => props.absolute ? scaleYNum(d[1]) : scaleYPer(d[1] / d.data.mean_total))
+      .y0(d => props.absolute ? scaleYNum(d[0]) : (d.data.mean_total>0?(scaleYPer(d[0] / d.data.mean_total)):scaleYPer(0)))
+      .y1(d => props.absolute ? scaleYNum(d[1]) : (d.data.mean_total>0?(scaleYPer(d[1] / d.data.mean_total)):scaleYPer(0)))
       .curve(d3.curveMonotoneX);
 
     const transition = d3.transition()
       .duration(750);
 
     const labelContainer = this.selection()
+      .appendSelect('div.label-mother-container')
       .appendSelect('div.label-container');
 
     const textUpdate = labelContainer
@@ -171,7 +183,6 @@ class StackedAreaChart extends ChartComponent {
       .style('top', (d, i) => {
         return i * props.line_height + 'rem';
       })
-      .style('margin-top', (props.line_height / 3) + 'rem')
       .style('background', (d, i) => {
         if (i === highlightIndex) {
           return props.highlight_color;
