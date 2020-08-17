@@ -434,6 +434,12 @@ var ChartComponent = /*#__PURE__*/function () {
   return ChartComponent;
 }();
 
+Date.prototype.addDays = function (days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
 var client = new AtlasMetadataClient();
 
 var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
@@ -483,6 +489,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
     key: "draw",
     value: function draw() {
       var dateParse = d3.timeParse('%Y-%m-%d');
+      var dateFormatMatch = d3.timeFormat('%Y-%m-%d');
       var data = this.data();
       var props = this.props();
       var node = this.selection().node();
@@ -502,6 +509,9 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         return d.date;
       }).entries(data);
       dateWise.forEach(function (d, index) {
+        d.values.forEach(function (d) {
+          d.count = d.count < 0 ? 0 : d.count;
+        });
         var obj = {
           date: dateParse(d.key),
           total: d3.sum(d.values, function (e) {
@@ -519,11 +529,15 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       reshapedData = reshapedData.sort(function (a, b) {
         return d3.descending(a.date, b.date);
       });
+      console.log(reshapedData);
       reshapedData.forEach(function (d, index) {
         regionList.forEach(function (e) {
           d['mean_' + e] = d3.mean(reshapedData.slice(index, index + props.avg_days), function (f) {
             return +f[e];
           }); // avg calc
+          // if (d3.timeFormat('%Y-%m-%d')(d.date)=='2020-01-17') {
+          //   console.log(d,reshapedData.slice(index, (index + props.avg_days)))
+          // }
 
           if (!d['mean_' + e] || d['mean_' + e] < 0) {
             d['mean_' + e] = 0;
@@ -537,16 +551,16 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
           return +f.total;
         }); // avg calc
 
-        if (!d.mean_total) {
-          d.mean_total = d3.mean(reshapedData.slice(0, index), function (f) {
-            return +f.total;
-          });
+        if (!d['mean_total'] || d['mean_total'] < 0) {
+          d['mean_total'] = 0;
         }
 
         if (index === 0) {
           d.mean_total = d.total;
         }
-      }); // reshapedData = reshapedData.shift();
+      }); // reshapedData = reshapedData.filter(d => d.total > 0 && d.mean_total > 0);
+
+      console.log(reshapedData); // reshapedData = reshapedData.shift();
 
       var maxData = reshapedData[1];
       var meanList = regionList.map(function (d) {
@@ -566,12 +580,12 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       var areaDeath = d3.area().x(function (d) {
         return scaleX(d.data.date);
       }).y0(function (d) {
-        return props.absolute ? scaleYNum(d[0]) : scaleYPer(d[0] / d.data.mean_total);
+        return props.absolute ? scaleYNum(d[0]) : d.data.mean_total > 0 ? scaleYPer(d[0] / d.data.mean_total) : scaleYPer(0);
       }).y1(function (d) {
-        return props.absolute ? scaleYNum(d[1]) : scaleYPer(d[1] / d.data.mean_total);
+        return props.absolute ? scaleYNum(d[1]) : d.data.mean_total > 0 ? scaleYPer(d[1] / d.data.mean_total) : scaleYPer(0);
       }).curve(d3.curveMonotoneX);
       var transition = d3.transition().duration(750);
-      var labelContainer = this.selection().appendSelect('div.label-container');
+      var labelContainer = this.selection().appendSelect('div.label-mother-container').appendSelect('div.label-container');
       var textUpdate = labelContainer.selectAll('.label-text').data(seriesDeath.reverse(), function (d, i) {
         return d.key;
       }).call(function (update) {
@@ -622,7 +636,7 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       });
       labelBox.enter().append('div').attr('class', 'label-box').style('top', function (d, i) {
         return i * props.line_height + 'rem';
-      }).style('margin-top', props.line_height / 3 + 'rem').style('background', function (d, i) {
+      }).style('background', function (d, i) {
         if (i === highlightIndex) {
           return props.highlight_color;
         } else {
