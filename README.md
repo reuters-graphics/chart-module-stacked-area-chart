@@ -72,6 +72,16 @@ myChart
 
       // Date format for the x axis
       date: '%b',
+
+      // Number of ticks on the x axis
+      x_axis_ticks: 3,
+    },
+    range: {
+      // If you want to filter the data on a date,
+      // pass a date in 'YYYY-MM-DD' format
+      // The chart will plot all dates by default
+      start_date: '2020-02-02',
+      end_date: null,
     },
   })
   .draw();
