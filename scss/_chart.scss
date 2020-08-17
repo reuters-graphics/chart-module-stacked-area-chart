@@ -10,26 +10,32 @@ body{
 #{$StackedAreaChart-container} {
   
   .label-container{
+    position: relative;
     .label{
       margin-right:1rem;
     }
-    .label.highlight{
+    .label-text.highlight{
       font-weight: bold;
-      .label-text{
-        font-size: 1rem;
-      }
-      
+      font-size: 1rem;
+      margin-top: -2px;
     }
     .label-box{
       height: 10px;
       width: 15px;
       display: inline-block;
       margin-right: 3px;
+      position: absolute;
     }
     .label-text{
       font-size: .9rem;
       color: $half-white;
       display: inline-block;
+      position: absolute;
+      left: 20px;
+      -moz-transition: all .2s linear;
+      -webkit-transition: all .2s linear;
+      -o-transition: all .2s linear;
+      transition: all .2s linear;
     }
   }
   .axis{

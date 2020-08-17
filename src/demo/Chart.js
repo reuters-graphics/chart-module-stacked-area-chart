@@ -3,7 +3,8 @@ import ChartContainer from './furniture/ChartContainer';
 import React from 'react';
 import { base } from '@reuters-graphics/style-color/dist/categorical';
 import debounce from 'lodash/debounce';
-import defaultData from './defaultData.json';
+import cases from './cases.json';
+import deaths from './deaths.json';
 
 class ChartComponent extends React.Component {
   state = { width: '' };
@@ -19,16 +20,20 @@ class ChartComponent extends React.Component {
     // Use our chart module.
     this.chart
       .selection(this.chartContainer.current)
-      .data(defaultData)
-      // .props({ locale: 'es'})
+      .data(cases)
+      .props({
+        absolute: true,
+        // highlight_variable: 'asia'
+      })
       .draw();
 
     // Use it again.
     setTimeout(() => {
       this.chart
-        // .props({ absolute: true })
+        .data(deaths)
+        .props({absolute: true,})
         .draw();
-    }, 3000);
+    }, 5000);
     // setTimeout(() => {
     //   this.chart
     //     .data([30, 50, 30])

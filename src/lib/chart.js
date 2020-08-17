@@ -1,7 +1,6 @@
 import ChartComponent from './base/ChartComponent';
 import d3 from './utils/d3';
-import { uniq, sortBy } from 'lodash';
-import { compareValues } from './utils/utils';
+import { uniq, sortBy, findIndex } from 'lodash';
 import D3Locale from '@reuters-graphics/d3-locale';
 import AtlasMetadataClient from '@reuters-graphics/graphics-atlas-client';
 const client = new AtlasMetadataClient();
@@ -21,8 +20,9 @@ class StackedAreaChart extends ChartComponent {
     avg_days: 7,
     locale: 'en',
     absolute: false,
-    highlight_variable: 'asia',
+    highlight_variable: null,
     highlight_color: '#fce587',
+    line_height: 1.2,
     chart_formats: {
       number: ',',
       percent: '.0%',
@@ -52,26 +52,26 @@ class StackedAreaChart extends ChartComponent {
         date: dateParse(d.key),
         total: d3.sum(d.values, e => e.count),
       };
-      regionList.forEach(e => obj[e] = 0);
+      regionList.forEach( e => obj[e] = 0 );
       d.values.forEach(function(e) {
         obj[e.region] = e.count;
       });
       reshapedData.push(obj);
     });
 
-    reshapedData = reshapedData.sort(compareValues('date'));
+    reshapedData = reshapedData.sort((a, b) => (d3.descending(a.date, b.date)));
 
     reshapedData.forEach(function(d, index) {
       regionList.forEach((e) => {
-        d['mean_' + e] = d3.mean(reshapedData.slice((index - props.avg_days), index), f => +f[e] ); // avg calc
-        if (!d['mean_' + e]) {
-          d['mean_' + e] = d3.mean(reshapedData.slice(0, index), f => +f[e]);
+        d['mean_' + e] = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f[e] ); // avg calc
+        if (!d['mean_' + e] || d['mean_' + e]<0) {
+          d['mean_' + e] = 0;
         }
         if (index === 0) {
           d['mean_' + e] = d[e];
         }
       });
-      d.mean_total = d3.mean(reshapedData.slice((index - props.avg_days), index), f => +f.total); // avg calc
+      d.mean_total = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f.total); // avg calc
       if (!d.mean_total) {
         d.mean_total = d3.mean(reshapedData.slice(0, index), f => +f.total);
       }
@@ -80,7 +80,10 @@ class StackedAreaChart extends ChartComponent {
         d.mean_total = d.total;
       }
     });
-    const maxData = reshapedData[reshapedData.length - 1];
+
+    // reshapedData = reshapedData.shift();
+
+    const maxData = reshapedData[1];
     const meanList = regionList.map(d => 'mean_' + d);
     regionList = sortBy(meanList, d => +maxData[d]);
 
@@ -95,7 +98,7 @@ class StackedAreaChart extends ChartComponent {
 
     const scaleYNum = d3.scaleLinear()
       .range([props.height - props.margin.top - props.margin.bottom, 0])
-      .domain([0, d3.max(reshapedData, d => d.mean_total )]);
+      .domain([0, d3.max(reshapedData, d => d.mean_total)]);
 
     const areaDeath = d3.area()
       .x(d => scaleX(d.data.date))
@@ -106,36 +109,77 @@ class StackedAreaChart extends ChartComponent {
     const transition = d3.transition()
       .duration(750);
 
-    const labels = this.selection()
-      .appendSelect('div.label-container')
-      .selectAll('div.label')
-      .data(seriesDeath.reverse(), (d, i) => d.key);
+    const labelContainer = this.selection()
+      .appendSelect('div.label-container');
 
-    const labelInner = labels.enter()
-      .append('div')
-      .attr('class', function(d) {
+    const textUpdate = labelContainer
+      .selectAll('.label-text')
+      .data(seriesDeath.reverse(), (d, i) => d.key)
+      .call(update => update.transition(transition))
+      .attr('class', (d, i) => {
         if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'label highlight';
+          return 'highlight label-text';
         } else {
-          return 'label';
+          return 'label-text';
         }
       })
-      .merge(labels);
+      .style('top', (d, i) => {
+        return i * props.line_height + 'rem';
+      });
 
-    labelInner.appendSelect('div.label-box')
-      .style('background', (d, i) => {
+    // enter
+    textUpdate.enter()
+      .append('div')
+      .attr('class', (d, i) => {
         if (d.key.split('_')[1] === props.highlight_variable) {
+          return 'highlight label-text';
+        } else {
+          return 'label-text';
+        }
+      })
+      .style('top', (d, i) => {
+        return i * props.line_height + 'rem';
+      })
+      .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale])
+      .call(enter => enter.transition(transition));
+
+    // exit
+    textUpdate.exit()
+      .call(exit => exit.transition(transition))
+      .remove();
+    let highlightIndex;
+    if (props.highlight_variable) {
+      highlightIndex = (findIndex(seriesDeath, d=> d.key.split('_')[1] === props.highlight_variable))  
+    } else {
+      highlightIndex = -1;
+    }
+
+    const labelBox = labelContainer
+      .selectAll('.label-box')
+      .data(props.fills)
+      .style('background', (d, i) => {
+        if (i === highlightIndex) {
           return props.highlight_color;
         } else {
           return ((props.fills[i]) ? props.fills[i] : '#000');
         }
       });
 
-    labelInner.appendSelect('div.label-text')
-      .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale]);
-
-    labels.exit()
-      .remove();
+    labelBox.enter()
+      .append('div')
+      .attr('class', 'label-box')
+      .style('top', (d, i) => {
+        return i * props.line_height + 'rem';
+      })
+      .style('margin-top', (props.line_height / 3) + 'rem')
+      .style('background', (d, i) => {
+        if (i === highlightIndex) {
+          return props.highlight_color;
+        } else {
+          return ((props.fills[i]) ? props.fills[i] : '#000');
+        }
+      })
+      .merge(labelBox);
 
     const g = this.selection()
       .appendSelect('svg') // see docs in ./utils/d3.js
@@ -144,20 +188,27 @@ class StackedAreaChart extends ChartComponent {
       .appendSelect('g')
       .attr('transform', `translate(${props.margin.left}, ${props.margin.top})`);
 
-    const deathChartPaths = g.appendSelect('g.areas')
+    const areaChartPaths = g.appendSelect('g.areas')
       .selectAll('g.area')
       .data(seriesDeath)
       .join('g')
       .attr('class', 'area');
 
-    deathChartPaths.append('path');
+    areaChartPaths.append('path');
 
-    deathChartPaths.select('path')
+    areaChartPaths.select('path')
       .attr('class', function(d) {
         if (d.key.split('_')[1] === props.highlight_variable) {
           return d.key + ' highlight';
         } else {
           return d.key;
+        }
+      })
+      .attr('fill', function(d, i) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return ((props.fills[i]) ? props.fills[i] : '#000');
         }
       })
       .transition(transition)
@@ -173,11 +224,13 @@ class StackedAreaChart extends ChartComponent {
       .attr('stroke-width', props.stroke_width);
 
     g.appendSelect('g.axis--y.axis')
+      .attr('transform', `translate(${width - props.margin.right - props.margin.left},0)`)
       .transition(transition)
       .attr('transform', `translate(${width - props.margin.right - props.margin.left},0)`)
       .call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
 
     g.appendSelect('g.axis--x.axis')
+      .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
       .transition(transition)
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
       .call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
