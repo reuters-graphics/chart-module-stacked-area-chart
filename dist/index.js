@@ -434,34 +434,6 @@ var ChartComponent = /*#__PURE__*/function () {
   return ChartComponent;
 }();
 
-Date.prototype.addDays = function (days) {
-  var date = new Date(this.valueOf());
-  date.setDate(date.getDate() + days);
-  return date;
-};
-
-function compareValues(key) {
-  var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'asc';
-  return function innerSort(a, b) {
-    if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
-      // property doesn't exist on either object
-      return 0;
-    }
-
-    var varA = typeof a[key] === 'string' ? a[key].toUpperCase() : a[key];
-    var varB = typeof b[key] === 'string' ? b[key].toUpperCase() : b[key];
-    var comparison = 0;
-
-    if (varA > varB) {
-      comparison = 1;
-    } else if (varA < varB) {
-      comparison = -1;
-    }
-
-    return order === 'desc' ? comparison * -1 : comparison;
-  };
-}
-
 var client = new AtlasMetadataClient();
 
 var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
@@ -494,8 +466,9 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       avg_days: 7,
       locale: 'en',
       absolute: false,
-      highlight_variable: 'asia',
+      highlight_variable: null,
       highlight_color: '#fce587',
+      line_height: 1.2,
       chart_formats: {
         number: ',',
         percent: '.0%',
@@ -543,24 +516,24 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         });
         reshapedData.push(obj);
       });
-      reshapedData = reshapedData.sort(compareValues('date'));
+      reshapedData = reshapedData.sort(function (a, b) {
+        return d3.descending(a.date, b.date);
+      });
       reshapedData.forEach(function (d, index) {
         regionList.forEach(function (e) {
-          d['mean_' + e] = d3.mean(reshapedData.slice(index - props.avg_days, index), function (f) {
+          d['mean_' + e] = d3.mean(reshapedData.slice(index, index + props.avg_days), function (f) {
             return +f[e];
           }); // avg calc
 
-          if (!d['mean_' + e]) {
-            d['mean_' + e] = d3.mean(reshapedData.slice(0, index), function (f) {
-              return +f[e];
-            });
+          if (!d['mean_' + e] || d['mean_' + e] < 0) {
+            d['mean_' + e] = 0;
           }
 
           if (index === 0) {
             d['mean_' + e] = d[e];
           }
         });
-        d.mean_total = d3.mean(reshapedData.slice(index - props.avg_days, index), function (f) {
+        d.mean_total = d3.mean(reshapedData.slice(index, index + props.avg_days), function (f) {
           return +f.total;
         }); // avg calc
 
@@ -573,8 +546,9 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         if (index === 0) {
           d.mean_total = d.total;
         }
-      });
-      var maxData = reshapedData[reshapedData.length - 1];
+      }); // reshapedData = reshapedData.shift();
+
+      var maxData = reshapedData[1];
       var meanList = regionList.map(function (d) {
         return 'mean_' + d;
       });
@@ -597,36 +571,79 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         return props.absolute ? scaleYNum(d[1]) : scaleYPer(d[1] / d.data.mean_total);
       }).curve(d3.curveMonotoneX);
       var transition = d3.transition().duration(750);
-      var labels = this.selection().appendSelect('div.label-container').selectAll('div.label').data(seriesDeath.reverse(), function (d, i) {
+      var labelContainer = this.selection().appendSelect('div.label-container');
+      var textUpdate = labelContainer.selectAll('.label-text').data(seriesDeath.reverse(), function (d, i) {
         return d.key;
-      });
-      var labelInner = labels.enter().append('div').attr('class', function (d) {
+      }).call(function (update) {
+        return update.transition(transition);
+      }).attr('class', function (d, i) {
         if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'label highlight';
+          return 'highlight label-text';
         } else {
-          return 'label';
+          return 'label-text';
         }
-      }).merge(labels);
-      labelInner.appendSelect('div.label-box').style('background', function (d, i) {
+      }).style('top', function (d, i) {
+        return i * props.line_height + 'rem';
+      }); // enter
+
+      textUpdate.enter().append('div').attr('class', function (d, i) {
         if (d.key.split('_')[1] === props.highlight_variable) {
+          return 'highlight label-text';
+        } else {
+          return 'label-text';
+        }
+      }).style('top', function (d, i) {
+        return i * props.line_height + 'rem';
+      }).text(function (d) {
+        return client.getRegion(d.key.split('_')[1]).translations[props.locale];
+      }).call(function (enter) {
+        return enter.transition(transition);
+      }); // exit
+
+      textUpdate.exit().call(function (exit) {
+        return exit.transition(transition);
+      }).remove();
+      var highlightIndex;
+
+      if (props.highlight_variable) {
+        highlightIndex = lodash.findIndex(seriesDeath, function (d) {
+          return d.key.split('_')[1] === props.highlight_variable;
+        });
+      } else {
+        highlightIndex = -1;
+      }
+
+      var labelBox = labelContainer.selectAll('.label-box').data(props.fills).style('background', function (d, i) {
+        if (i === highlightIndex) {
           return props.highlight_color;
         } else {
           return props.fills[i] ? props.fills[i] : '#000';
         }
       });
-      labelInner.appendSelect('div.label-text').text(function (d) {
-        return client.getRegion(d.key.split('_')[1]).translations[props.locale];
-      });
-      labels.exit().remove();
+      labelBox.enter().append('div').attr('class', 'label-box').style('top', function (d, i) {
+        return i * props.line_height + 'rem';
+      }).style('margin-top', props.line_height / 3 + 'rem').style('background', function (d, i) {
+        if (i === highlightIndex) {
+          return props.highlight_color;
+        } else {
+          return props.fills[i] ? props.fills[i] : '#000';
+        }
+      }).merge(labelBox);
       var g = this.selection().appendSelect('svg') // see docs in ./utils/d3.js
       .attr('width', width).attr('height', props.height).appendSelect('g').attr('transform', "translate(".concat(props.margin.left, ", ").concat(props.margin.top, ")"));
-      var deathChartPaths = g.appendSelect('g.areas').selectAll('g.area').data(seriesDeath).join('g').attr('class', 'area');
-      deathChartPaths.append('path');
-      deathChartPaths.select('path').attr('class', function (d) {
+      var areaChartPaths = g.appendSelect('g.areas').selectAll('g.area').data(seriesDeath).join('g').attr('class', 'area');
+      areaChartPaths.append('path');
+      areaChartPaths.select('path').attr('class', function (d) {
         if (d.key.split('_')[1] === props.highlight_variable) {
           return d.key + ' highlight';
         } else {
           return d.key;
+        }
+      }).attr('fill', function (d, i) {
+        if (d.key.split('_')[1] === props.highlight_variable) {
+          return props.highlight_color;
+        } else {
+          return props.fills[i] ? props.fills[i] : '#000';
         }
       }).transition(transition).attr('fill', function (d, i) {
         if (d.key.split('_')[1] === props.highlight_variable) {
@@ -635,8 +652,8 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
           return props.fills[i] ? props.fills[i] : '#000';
         }
       }).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
-      g.appendSelect('g.axis--y.axis').transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
-      g.appendSelect('g.axis--x.axis').transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
+      g.appendSelect('g.axis--y.axis').attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
+      g.appendSelect('g.axis--x.axis').attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(4).tickFormat(dateFormat));
       return this;
     }
   }]);
