@@ -434,12 +434,6 @@ var ChartComponent = /*#__PURE__*/function () {
   return ChartComponent;
 }();
 
-Date.prototype.addDays = function (days) {
-  var date = new Date(this.valueOf());
-  date.setDate(date.getDate() + days);
-  return date;
-};
-
 var client = new AtlasMetadataClient();
 
 var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
@@ -475,6 +469,8 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       highlight_variable: null,
       highlight_color: '#fce587',
       line_height: 1.2,
+      hide_key: false,
+      interaction: false,
       chart_formats: {
         number: ',',
         percent: '.0%',
@@ -555,9 +551,6 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
           d['mean_' + e] = d3.mean(reshapedData.slice(index, index + props.avg_days), function (f) {
             return +f[e];
           }); // avg calc
-          // if (d3.timeFormat('%Y-%m-%d')(d.date)=='2020-01-17') {
-          //   console.log(d,reshapedData.slice(index, (index + props.avg_days)))
-          // }
 
           if (!d['mean_' + e] || d['mean_' + e] < 0) {
             d['mean_' + e] = 0;
@@ -580,12 +573,11 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         }
       });
       var maxData = reshapedData[0];
-      console.log(maxData);
       var meanList = regionList.map(function (d) {
         return 'mean_' + d;
       });
       regionList = lodash.sortBy(meanList, function (d) {
-        return +maxData[d];
+        return d.split('_')[1] === props.highlight_variable ? -1000 : +maxData[d];
       });
       var seriesDeath = d3.stack().keys(regionList)(reshapedData);
       var scaleX = d3.scaleTime().range([0, width - props.margin.left - props.margin.right]).domain(d3.extent(reshapedData, function (d) {
@@ -603,64 +595,71 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
         return props.absolute ? scaleYNum(d[1]) : d.data.mean_total > 0 ? scaleYPer(d[1] / d.data.mean_total) : scaleYPer(0);
       }).curve(d3.curveMonotoneX);
       var transition = d3.transition().duration(750);
-      var labelContainer = this.selection().appendSelect('div.label-mother-container').appendSelect('div.label-container');
-      var textUpdate = labelContainer.selectAll('.label-text').data(seriesDeath.reverse(), function (d, i) {
-        return d.key;
-      }).call(function (update) {
-        return update.transition(transition);
-      }).attr('class', function (d, i) {
-        if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'highlight label-text';
+
+      if (!props.hide_key) {
+        var labelContainer = this.selection().appendSelect('div.label-mother-container').appendSelect('div.label-container');
+        this.selection().select('.label-mother-container').lower();
+        var textUpdate = labelContainer.selectAll('.label-text').data(seriesDeath.reverse(), function (d, i) {
+          return d.key;
+        }).call(function (update) {
+          return update.transition(transition);
+        }).attr('class', function (d, i) {
+          if (d.key.split('_')[1] === props.highlight_variable) {
+            return 'highlight label-text';
+          } else {
+            return 'label-text';
+          }
+        }).style('top', function (d, i) {
+          return i * props.line_height + 'rem';
+        }); // enter
+
+        textUpdate.enter().append('div').attr('class', function (d, i) {
+          if (d.key.split('_')[1] === props.highlight_variable) {
+            return 'highlight label-text';
+          } else {
+            return 'label-text';
+          }
+        }).style('top', function (d, i) {
+          return i * props.line_height + 'rem';
+        }).text(function (d) {
+          return client.getRegion(d.key.split('_')[1]).translations[props.locale];
+        }).call(function (enter) {
+          return enter.transition(transition);
+        }); // exit
+
+        textUpdate.exit().call(function (exit) {
+          return exit.transition(transition);
+        }).remove();
+        var highlightIndex;
+
+        if (props.highlight_variable) {
+          highlightIndex = lodash.findIndex(seriesDeath, function (d) {
+            return d.key.split('_')[1] === props.highlight_variable;
+          });
         } else {
-          return 'label-text';
+          highlightIndex = -1;
         }
-      }).style('top', function (d, i) {
-        return i * props.line_height + 'rem';
-      }); // enter
 
-      textUpdate.enter().append('div').attr('class', function (d, i) {
-        if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'highlight label-text';
-        } else {
-          return 'label-text';
-        }
-      }).style('top', function (d, i) {
-        return i * props.line_height + 'rem';
-      }).text(function (d) {
-        return client.getRegion(d.key.split('_')[1]).translations[props.locale];
-      }).call(function (enter) {
-        return enter.transition(transition);
-      }); // exit
-
-      textUpdate.exit().call(function (exit) {
-        return exit.transition(transition);
-      }).remove();
-      var highlightIndex;
-
-      if (props.highlight_variable) {
-        highlightIndex = lodash.findIndex(seriesDeath, function (d) {
-          return d.key.split('_')[1] === props.highlight_variable;
+        var labelBox = labelContainer.selectAll('.label-box').data(props.fills).style('background', function (d, i) {
+          if (i === highlightIndex) {
+            return props.highlight_color;
+          } else {
+            return props.fills[i] ? props.fills[i] : '#000';
+          }
         });
+        labelBox.enter().append('div').attr('class', 'label-box').style('top', function (d, i) {
+          return i * props.line_height + 'rem';
+        }).style('background', function (d, i) {
+          if (i === highlightIndex) {
+            return props.highlight_color;
+          } else {
+            return props.fills[i] ? props.fills[i] : '#000';
+          }
+        }).merge(labelBox);
       } else {
-        highlightIndex = -1;
+        this.selection().selectAll('.label-mother-container').remove();
       }
 
-      var labelBox = labelContainer.selectAll('.label-box').data(props.fills).style('background', function (d, i) {
-        if (i === highlightIndex) {
-          return props.highlight_color;
-        } else {
-          return props.fills[i] ? props.fills[i] : '#000';
-        }
-      });
-      labelBox.enter().append('div').attr('class', 'label-box').style('top', function (d, i) {
-        return i * props.line_height + 'rem';
-      }).style('background', function (d, i) {
-        if (i === highlightIndex) {
-          return props.highlight_color;
-        } else {
-          return props.fills[i] ? props.fills[i] : '#000';
-        }
-      }).merge(labelBox);
       var g = this.selection().appendSelect('svg') // see docs in ./utils/d3.js
       .attr('width', width).attr('height', props.height).appendSelect('g').attr('transform', "translate(".concat(props.margin.left, ", ").concat(props.margin.top, ")"));
       var areaChartPaths = g.appendSelect('g.areas').selectAll('g.area').data(seriesDeath).join('g').attr('class', 'area');

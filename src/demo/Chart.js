@@ -19,23 +19,25 @@ class ChartComponent extends React.Component {
     // Use our chart module.
     this.chart
       .selection(this.chartContainer.current)
-      .data(deaths)
+      .data(cases)
       .props({
         absolute: true,
-        highlight_variable: 'asia',
+        // highlight_variable: 'asia',
+        // hide_key: true,
+        interaction: true,
         range: {
-          start_date: '2020-02-01',
-        }
+          end_date: '2020-08-10',
+          // start_date: '2020-02-01',
+        },
+        fills: ['rgba(255,255,255,0.7)',
+          'rgba(255,255,255,0.7)',
+          'rgba(255,255,255,0.7)',
+          'rgba(255,255,255,0.7)',
+          'rgba(255,255,255,0.7)',
+          'rgba(255,255,255,0.7)'],
       })
       .draw();
 
-    // Use it again.
-    // setTimeout(() => {
-    //   this.chart
-    //     .data(deaths)
-    //     .props({absolute: false,})
-    //     .draw();
-    // }, 5000);
     // setTimeout(() => {
     //   this.chart
     //     .data([30, 50, 30])

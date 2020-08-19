@@ -1,7 +1,6 @@
 import ChartComponent from './base/ChartComponent';
 import d3 from './utils/d3';
 import { uniq, sortBy, findIndex } from 'lodash';
-import { getDates } from './utils/utils.js';
 import D3Locale from '@reuters-graphics/d3-locale';
 import AtlasMetadataClient from '@reuters-graphics/graphics-atlas-client';
 const client = new AtlasMetadataClient();
@@ -24,6 +23,8 @@ class StackedAreaChart extends ChartComponent {
     highlight_variable: null,
     highlight_color: '#fce587',
     line_height: 1.2,
+    hide_key: false,
+    interaction: false,
     chart_formats: {
       number: ',',
       percent: '.0%',
@@ -63,8 +64,6 @@ class StackedAreaChart extends ChartComponent {
       .key(d => d.date)
       .entries(filtedData);
 
-
-
     dateWise.forEach(function(d, index) {
       d.values.forEach((d) => {
         d.count = d.count < 0 ? 0: d.count;
@@ -86,9 +85,6 @@ class StackedAreaChart extends ChartComponent {
       regionList.forEach((e) => {
 
         d['mean_' + e] = d3.mean(reshapedData.slice(index, (index + props.avg_days)), f => +f[e]); // avg calc
-        // if (d3.timeFormat('%Y-%m-%d')(d.date)=='2020-01-17') {
-        //   console.log(d,reshapedData.slice(index, (index + props.avg_days)))
-        // }
         if (!d['mean_' + e] || d['mean_' + e]<0) {
           d['mean_' + e] = 0;
         }
@@ -107,9 +103,8 @@ class StackedAreaChart extends ChartComponent {
     });
 
     const maxData = reshapedData[0];
-    console.log(maxData)
     const meanList = regionList.map(d => 'mean_' + d);
-    regionList = sortBy(meanList, d => +maxData[d]);
+    regionList = sortBy(meanList, d => (d.split('_')[1] === props.highlight_variable) ? -1000 : +maxData[d]);
 
     const seriesDeath = d3.stack().keys(regionList)(reshapedData);
     const scaleX = d3.scaleTime()
@@ -133,77 +128,85 @@ class StackedAreaChart extends ChartComponent {
     const transition = d3.transition()
       .duration(750);
 
-    const labelContainer = this.selection()
-      .appendSelect('div.label-mother-container')
-      .appendSelect('div.label-container');
+    if (!props.hide_key) {
+      const labelContainer = this.selection()
+        .appendSelect('div.label-mother-container')
+        .appendSelect('div.label-container');
 
-    const textUpdate = labelContainer
-      .selectAll('.label-text')
-      .data(seriesDeath.reverse(), (d, i) => d.key)
-      .call(update => update.transition(transition))
-      .attr('class', (d, i) => {
-        if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'highlight label-text';
-        } else {
-          return 'label-text';
-        }
-      })
-      .style('top', (d, i) => {
-        return i * props.line_height + 'rem';
-      });
+      this.selection().select('.label-mother-container').lower()
 
-    // enter
-    textUpdate.enter()
-      .append('div')
-      .attr('class', (d, i) => {
-        if (d.key.split('_')[1] === props.highlight_variable) {
-          return 'highlight label-text';
-        } else {
-          return 'label-text';
-        }
-      })
-      .style('top', (d, i) => {
-        return i * props.line_height + 'rem';
-      })
-      .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale])
-      .call(enter => enter.transition(transition));
+      const textUpdate = labelContainer
+        .selectAll('.label-text')
+        .data(seriesDeath.reverse(), (d, i) => d.key)
+        .call(update => update.transition(transition))
+        .attr('class', (d, i) => {
+          if (d.key.split('_')[1] === props.highlight_variable) {
+            return 'highlight label-text';
+          } else {
+            return 'label-text';
+          }
+        })
+        .style('top', (d, i) => {
+          return i * props.line_height + 'rem';
+        });
 
-    // exit
-    textUpdate.exit()
-      .call(exit => exit.transition(transition))
-      .remove();
-    let highlightIndex;
-    if (props.highlight_variable) {
-      highlightIndex = (findIndex(seriesDeath, d=> d.key.split('_')[1] === props.highlight_variable))  
+      // enter
+      textUpdate.enter()
+        .append('div')
+        .attr('class', (d, i) => {
+          if (d.key.split('_')[1] === props.highlight_variable) {
+            return 'highlight label-text';
+          } else {
+            return 'label-text';
+          }
+        })
+        .style('top', (d, i) => {
+          return i * props.line_height + 'rem';
+        })
+        .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale])
+        .call(enter => enter.transition(transition));
+
+      // exit
+      textUpdate.exit()
+        .call(exit => exit.transition(transition))
+        .remove();
+      let highlightIndex;
+      if (props.highlight_variable) {
+        highlightIndex = (findIndex(seriesDeath, d=> d.key.split('_')[1] === props.highlight_variable))  
+      } else {
+        highlightIndex = -1;
+      }
+
+      const labelBox = labelContainer
+        .selectAll('.label-box')
+        .data(props.fills)
+        .style('background', (d, i) => {
+          if (i === highlightIndex) {
+            return props.highlight_color;
+          } else {
+            return ((props.fills[i]) ? props.fills[i] : '#000');
+          }
+        });
+
+      labelBox.enter()
+        .append('div')
+        .attr('class', 'label-box')
+        .style('top', (d, i) => {
+          return i * props.line_height + 'rem';
+        })
+        .style('background', (d, i) => {
+          if (i === highlightIndex) {
+            return props.highlight_color;
+          } else {
+            return ((props.fills[i]) ? props.fills[i] : '#000');
+          }
+        })
+        .merge(labelBox);
     } else {
-      highlightIndex = -1;
+      this.selection()
+        .selectAll('.label-mother-container')
+        .remove()
     }
-
-    const labelBox = labelContainer
-      .selectAll('.label-box')
-      .data(props.fills)
-      .style('background', (d, i) => {
-        if (i === highlightIndex) {
-          return props.highlight_color;
-        } else {
-          return ((props.fills[i]) ? props.fills[i] : '#000');
-        }
-      });
-
-    labelBox.enter()
-      .append('div')
-      .attr('class', 'label-box')
-      .style('top', (d, i) => {
-        return i * props.line_height + 'rem';
-      })
-      .style('background', (d, i) => {
-        if (i === highlightIndex) {
-          return props.highlight_color;
-        } else {
-          return ((props.fills[i]) ? props.fills[i] : '#000');
-        }
-      })
-      .merge(labelBox);
 
     const g = this.selection()
       .appendSelect('svg') // see docs in ./utils/d3.js
