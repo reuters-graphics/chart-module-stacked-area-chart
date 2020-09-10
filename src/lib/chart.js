@@ -80,7 +80,7 @@ class StackedAreaChart extends ChartComponent {
     });
 
     reshapedData = reshapedData.sort((a, b) => (d3.descending(a.date, b.date)));
-    console.log(reshapedData)
+
     reshapedData.forEach(function(d, index) {
       regionList.forEach((e) => {
 
@@ -163,6 +163,12 @@ class StackedAreaChart extends ChartComponent {
         .style('top', (d, i) => {
           return i * props.line_height + 'rem';
         })
+        .on('click', function(d, i) {
+          const url = d.key.split('_')[1]
+          if (url) {
+            navOnClick(url)
+          }
+        })
         .text(d => client.getRegion(d.key.split('_')[1]).translations[props.locale])
         .call(enter => enter.transition(transition));
 
@@ -205,7 +211,7 @@ class StackedAreaChart extends ChartComponent {
     } else {
       this.selection()
         .selectAll('.label-mother-container')
-        .remove()
+        .remove();
     }
 
     const g = this.selection()
@@ -262,6 +268,12 @@ class StackedAreaChart extends ChartComponent {
       .attr('transform', `translate(0,${props.height - props.margin.bottom - props.margin.top})`)
       .call(d3.axisBottom(scaleX).ticks(props.chart_formats.x_axis_ticks).tickFormat(dateFormat));
 
+    const navOnClick = (regionSlug) => {
+      if (props.regionLinks){
+        // calling this function will navigate to a region page
+        props.regionLinks[regionSlug]();
+      }
+    };
     return this;
   }
 }

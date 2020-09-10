@@ -38,6 +38,10 @@ body{
       -o-transition: all .2s linear;
       transition: all .2s linear;
     }
+    .label-text:hover{
+      text-decoration: underline;
+      cursor: pointer;
+    }
   }
   .axis{
     text{
