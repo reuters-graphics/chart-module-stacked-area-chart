@@ -545,7 +545,6 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       reshapedData = reshapedData.sort(function (a, b) {
         return d3.descending(a.date, b.date);
       });
-      console.log(reshapedData);
       reshapedData.forEach(function (d, index) {
         regionList.forEach(function (e) {
           d['mean_' + e] = d3.mean(reshapedData.slice(index, index + props.avg_days), function (f) {
@@ -621,6 +620,12 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
           }
         }).style('top', function (d, i) {
           return i * props.line_height + 'rem';
+        }).on('click', function (d, i) {
+          var url = d.key.split('_')[1];
+
+          if (url) {
+            navOnClick(url);
+          }
         }).text(function (d) {
           return client.getRegion(d.key.split('_')[1]).translations[props.locale];
         }).call(function (enter) {
@@ -685,6 +690,14 @@ var StackedAreaChart = /*#__PURE__*/function (_ChartComponent) {
       }).attr('d', areaDeath).attr('stroke', props.stroke).attr('stroke-width', props.stroke_width);
       g.appendSelect('g.axis--y.axis').attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).transition(transition).attr('transform', "translate(".concat(width - props.margin.right - props.margin.left, ",0)")).call(d3.axisRight(props.absolute ? scaleYNum : scaleYPer).ticks(3).tickFormat(props.absolute ? formatNum : formatPer));
       g.appendSelect('g.axis--x.axis').attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).transition(transition).attr('transform', "translate(0,".concat(props.height - props.margin.bottom - props.margin.top, ")")).call(d3.axisBottom(scaleX).ticks(props.chart_formats.x_axis_ticks).tickFormat(dateFormat));
+
+      var navOnClick = function navOnClick(regionSlug) {
+        if (props.regionLinks) {
+          // calling this function will navigate to a region page
+          props.regionLinks[regionSlug]();
+        }
+      };
+
       return this;
     }
   }]);
