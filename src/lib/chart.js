@@ -26,7 +26,7 @@ class StackedAreaChart extends ChartComponent {
     hide_key: false,
     interaction: false,
     chart_formats: {
-      number: ',',
+      number: '~s',
       percent: '.0%',
       date: '%b',
       x_axis_ticks: 3,
