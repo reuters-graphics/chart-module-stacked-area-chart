@@ -24,6 +24,7 @@ class ChartComponent extends React.Component {
         absolute: true,
         // highlight_variable: 'asia',
         // hide_key: true,
+        locale: 'ja',
         interaction: true,
         range: {
           end_date: '2020-08-10',
