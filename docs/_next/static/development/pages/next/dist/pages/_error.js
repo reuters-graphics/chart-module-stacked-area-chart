@@ -165,14 +165,14 @@ eval("var arrayLikeToArray = __webpack_require__(/*! ./arrayLikeToArray */ \"./n
 
 /***/ }),
 
-/***/ "./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./":
-/*!************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./":
+/*!*****************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js ***!
+  \*****************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("\n    (window.__NEXT_P = window.__NEXT_P || []).push([\n      \"/next/dist/pages/_error\",\n      function () {\n        return __webpack_require__(/*! ./node_modules/next/dist/pages/_error.js */ \"./node_modules/next/dist/pages/_error.js\");\n      }\n    ]);\n  //# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L2J1aWxkL3dlYnBhY2svbG9hZGVycy9uZXh0LWNsaWVudC1wYWdlcy1sb2FkZXIuanM/M2JlYSJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsZUFBZSxtQkFBTyxDQUFDLDBGQUFxSDtBQUM1STtBQUNBIiwiZmlsZSI6Ii4vbm9kZV9tb2R1bGVzL25leHQvZGlzdC9idWlsZC93ZWJwYWNrL2xvYWRlcnMvbmV4dC1jbGllbnQtcGFnZXMtbG9hZGVyLmpzP3BhZ2U9JTJGbmV4dCUyRmRpc3QlMkZwYWdlcyUyRl9lcnJvciZhYnNvbHV0ZVBhZ2VQYXRoPSUyRlVzZXJzJTJGdTYwNjg5NzMlMkZEb2N1bWVudHMlMkZ3b3JrJTJGY29yb25hdmlydXMlMkZ0cmFja2VyLW5ld3MtYXBwJTJGc3RhY2tlZEFyZWFDaGFydCUyRm5vZGVfbW9kdWxlcyUyRm5leHQlMkZkaXN0JTJGcGFnZXMlMkZfZXJyb3IuanMhLi8uanMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAod2luZG93Ll9fTkVYVF9QID0gd2luZG93Ll9fTkVYVF9QIHx8IFtdKS5wdXNoKFtcbiAgICAgIFwiL25leHQvZGlzdC9wYWdlcy9fZXJyb3JcIixcbiAgICAgIGZ1bmN0aW9uICgpIHtcbiAgICAgICAgcmV0dXJuIHJlcXVpcmUoXCIvVXNlcnMvdTYwNjg5NzMvRG9jdW1lbnRzL3dvcmsvY29yb25hdmlydXMvdHJhY2tlci1uZXdzLWFwcC9zdGFja2VkQXJlYUNoYXJ0L25vZGVfbW9kdWxlcy9uZXh0L2Rpc3QvcGFnZXMvX2Vycm9yLmpzXCIpO1xuICAgICAgfVxuICAgIF0pO1xuICAiXSwic291cmNlUm9vdCI6IiJ9\n//# sourceURL=webpack-internal:///./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./\n");
+eval("\n    (window.__NEXT_P = window.__NEXT_P || []).push([\n      \"/next/dist/pages/_error\",\n      function () {\n        return __webpack_require__(/*! ./node_modules/next/dist/pages/_error.js */ \"./node_modules/next/dist/pages/_error.js\");\n      }\n    ]);\n  //# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L2J1aWxkL3dlYnBhY2svbG9hZGVycy9uZXh0LWNsaWVudC1wYWdlcy1sb2FkZXIuanM/M2Y2MyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsZUFBZSxtQkFBTyxDQUFDLDBGQUE0RjtBQUNuSDtBQUNBIiwiZmlsZSI6Ii4vbm9kZV9tb2R1bGVzL25leHQvZGlzdC9idWlsZC93ZWJwYWNrL2xvYWRlcnMvbmV4dC1jbGllbnQtcGFnZXMtbG9hZGVyLmpzP3BhZ2U9JTJGbmV4dCUyRmRpc3QlMkZwYWdlcyUyRl9lcnJvciZhYnNvbHV0ZVBhZ2VQYXRoPSUyRlVzZXJzJTJGam1hYyUyRlNjcmlwdHMlMkZjaGFydC1tb2R1bGUtc3RhY2tlZC1hcmVhLWNoYXJ0JTJGbm9kZV9tb2R1bGVzJTJGbmV4dCUyRmRpc3QlMkZwYWdlcyUyRl9lcnJvci5qcyEuLy5qcyIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICh3aW5kb3cuX19ORVhUX1AgPSB3aW5kb3cuX19ORVhUX1AgfHwgW10pLnB1c2goW1xuICAgICAgXCIvbmV4dC9kaXN0L3BhZ2VzL19lcnJvclwiLFxuICAgICAgZnVuY3Rpb24gKCkge1xuICAgICAgICByZXR1cm4gcmVxdWlyZShcIi9Vc2Vycy9qbWFjL1NjcmlwdHMvY2hhcnQtbW9kdWxlLXN0YWNrZWQtYXJlYS1jaGFydC9ub2RlX21vZHVsZXMvbmV4dC9kaXN0L3BhZ2VzL19lcnJvci5qc1wiKTtcbiAgICAgIH1cbiAgICBdKTtcbiAgIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./\n");
 
 /***/ }),
 
@@ -250,12 +250,12 @@ eval("/* WEBPACK VAR INJECTION */(function(module) {\n\nvar _classCallCheck = __
 
 /***/ "./node_modules/react/index.js":
 /*!*******************************************************************************************!*\
-  !*** delegated ./node_modules/react/index.js from dll-reference dll_ec7d9c0249b2ef52b74c ***!
+  !*** delegated ./node_modules/react/index.js from dll-reference dll_5030f387d328e4415785 ***!
   \*******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = (__webpack_require__(/*! dll-reference dll_ec7d9c0249b2ef52b74c */ \"dll-reference dll_ec7d9c0249b2ef52b74c\"))(\"./node_modules/react/index.js\");//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vZGVsZWdhdGVkIC4vbm9kZV9tb2R1bGVzL3JlYWN0L2luZGV4LmpzIGZyb20gZGxsLXJlZmVyZW5jZSBkbGxfZWM3ZDljMDI0OWIyZWY1MmI3NGM/MDNhZSJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSIsImZpbGUiOiIuL25vZGVfbW9kdWxlcy9yZWFjdC9pbmRleC5qcy5qcyIsInNvdXJjZXNDb250ZW50IjpbIm1vZHVsZS5leHBvcnRzID0gKF9fd2VicGFja19yZXF1aXJlX18oLyohIGRsbC1yZWZlcmVuY2UgZGxsX2VjN2Q5YzAyNDliMmVmNTJiNzRjICovIFwiZGxsLXJlZmVyZW5jZSBkbGxfZWM3ZDljMDI0OWIyZWY1MmI3NGNcIikpKFwiLi9ub2RlX21vZHVsZXMvcmVhY3QvaW5kZXguanNcIik7Il0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./node_modules/react/index.js\n");
+eval("module.exports = (__webpack_require__(/*! dll-reference dll_5030f387d328e4415785 */ \"dll-reference dll_5030f387d328e4415785\"))(\"./node_modules/react/index.js\");//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vZGVsZWdhdGVkIC4vbm9kZV9tb2R1bGVzL3JlYWN0L2luZGV4LmpzIGZyb20gZGxsLXJlZmVyZW5jZSBkbGxfNTAzMGYzODdkMzI4ZTQ0MTU3ODU/ODU3NiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSIsImZpbGUiOiIuL25vZGVfbW9kdWxlcy9yZWFjdC9pbmRleC5qcy5qcyIsInNvdXJjZXNDb250ZW50IjpbIm1vZHVsZS5leHBvcnRzID0gKF9fd2VicGFja19yZXF1aXJlX18oLyohIGRsbC1yZWZlcmVuY2UgZGxsXzUwMzBmMzg3ZDMyOGU0NDE1Nzg1ICovIFwiZGxsLXJlZmVyZW5jZSBkbGxfNTAzMGYzODdkMzI4ZTQ0MTU3ODVcIikpKFwiLi9ub2RlX21vZHVsZXMvcmVhY3QvaW5kZXguanNcIik7Il0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./node_modules/react/index.js\n");
 
 /***/ }),
 
@@ -270,27 +270,27 @@ eval("module.exports = function(module) {\n\tif (!module.webpackPolyfill) {\n\t\
 
 /***/ }),
 
-/***/ 1:
-/*!****************************************************************************************************************************************************************************************************************************************!*\
-  !*** multi next-client-pages-loader?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js ***!
-  \****************************************************************************************************************************************************************************************************************************************/
+/***/ 2:
+/*!*********************************************************************************************************************************************************************************************************!*\
+  !*** multi next-client-pages-loader?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js ***!
+  \*********************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! next-client-pages-loader?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js! */"./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fu6068973%2FDocuments%2Fwork%2Fcoronavirus%2Ftracker-news-app%2FstackedAreaChart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./");
+module.exports = __webpack_require__(/*! next-client-pages-loader?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js! */"./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Fnext%2Fdist%2Fpages%2F_error&absolutePagePath=%2FUsers%2Fjmac%2FScripts%2Fchart-module-stacked-area-chart%2Fnode_modules%2Fnext%2Fdist%2Fpages%2F_error.js!./");
 
 
 /***/ }),
 
-/***/ "dll-reference dll_ec7d9c0249b2ef52b74c":
+/***/ "dll-reference dll_5030f387d328e4415785":
 /*!*******************************************!*\
-  !*** external "dll_ec7d9c0249b2ef52b74c" ***!
+  !*** external "dll_5030f387d328e4415785" ***!
   \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports = dll_ec7d9c0249b2ef52b74c;//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vZXh0ZXJuYWwgXCJkbGxfZWM3ZDljMDI0OWIyZWY1MmI3NGNcIj84NWNhIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBIiwiZmlsZSI6ImRsbC1yZWZlcmVuY2UgZGxsX2VjN2Q5YzAyNDliMmVmNTJiNzRjLmpzIiwic291cmNlc0NvbnRlbnQiOlsibW9kdWxlLmV4cG9ydHMgPSBkbGxfZWM3ZDljMDI0OWIyZWY1MmI3NGM7Il0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///dll-reference dll_ec7d9c0249b2ef52b74c\n");
+eval("module.exports = dll_5030f387d328e4415785;//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vZXh0ZXJuYWwgXCJkbGxfNTAzMGYzODdkMzI4ZTQ0MTU3ODVcIj9mZDIzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBIiwiZmlsZSI6ImRsbC1yZWZlcmVuY2UgZGxsXzUwMzBmMzg3ZDMyOGU0NDE1Nzg1LmpzIiwic291cmNlc0NvbnRlbnQiOlsibW9kdWxlLmV4cG9ydHMgPSBkbGxfNTAzMGYzODdkMzI4ZTQ0MTU3ODU7Il0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///dll-reference dll_5030f387d328e4415785\n");
 
 /***/ })
 
-},[[1,"static/runtime/webpack.js"]]]);
+},[[2,"static/runtime/webpack.js"]]]);

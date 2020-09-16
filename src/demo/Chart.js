@@ -1,9 +1,9 @@
 import Chart from '../lib/chart.js';
 import ChartContainer from './furniture/ChartContainer';
 import React from 'react';
-import debounce from 'lodash/debounce';
 import cases from './cases.json';
 import deaths from './deaths.json';
+import debounce from 'lodash/debounce';
 
 class ChartComponent extends React.Component {
   state = { width: '' };
@@ -22,7 +22,7 @@ class ChartComponent extends React.Component {
       .data(cases)
       .props({
         absolute: true,
-        // highlight_variable: 'asia',
+        // highlight_variable: 'asia-and-the-middle-east',
         // hide_key: true,
         locale: 'ja',
         interaction: true,
