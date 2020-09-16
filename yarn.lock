@@ -1075,10 +1075,10 @@
     eslint-plugin-react-hooks "*"
     eslint-plugin-standard "*"
 
-"@reuters-graphics/graphics-atlas-client@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@reuters-graphics/graphics-atlas-client/-/graphics-atlas-client-0.4.6.tgz#1d2cbcc3cbf2a0c801936eb04a95ff0b01863a62"
-  integrity sha512-LUUDtNiul/tjOGw8/hTx1jOvBa1jcCXtEZsSqh1GZWHjGRygqjcNrY/uMSGxeUTPllNOQVdpnHRaq76xb+RB7g==
+"@reuters-graphics/graphics-atlas-client@^0.4.7":
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/@reuters-graphics/graphics-atlas-client/-/graphics-atlas-client-0.4.7.tgz#b042cb19ea9138ac78acaa424c1975f32f3ea3b2"
+  integrity sha512-lvrRWa6gje7AhqAt+RqODvxJUcvkT6R7ZAp5YNRnj0ZvDIGMQbiw3LSQHjsil6rWwUzcct0P+hWySSzNzoVhIw==
   dependencies:
     cross-fetch "^3.0.5"
     glob "^7.1.6"

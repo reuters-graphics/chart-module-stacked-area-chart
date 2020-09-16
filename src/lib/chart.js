@@ -274,6 +274,11 @@ class StackedAreaChart extends ChartComponent {
         props.regionLinks[regionSlug]();
       }
     };
+
+    const formatNumberJapanese = (num) => {
+      return (num >= 1e4) ? locale.format(',.3~s')(num) : locale.format(',')(floor10(num, -1));
+    };
+
     return this;
   }
 }
